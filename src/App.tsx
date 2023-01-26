@@ -1,25 +1,75 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect, useCallback } from "react";
+import { useSelector } from "react-redux";
+import "./App.css";
+import DogForm from "./components/DogForm";
+import Loader from "./components/Loader";
+import Results from "./components/Results";
+import { fetchDogsData, fetchDogsSubBreed } from "./lib/api";
+import { RootState } from "./reducers";
+import { AppBody, Container, Description } from "./Styles/styled";
 
 function App() {
+  const [breedList, setBreedList] = useState(null);
+  const [subBreedList, setSubBreedList] = useState([]);
+  const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const dogStore = useSelector((state: RootState) => state.app);
+
+  const breedState = dogStore?.breed;
+  const imageResultState = dogStore?.imageResults;
+
+  const fetchData = useCallback(async () => {
+    await fetchDogsData()
+      .then((data) => {
+        setBreedList(data?.message);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    if (breedState !== "all") {
+      await fetchDogsSubBreed(breedState)
+        .then((data) => {
+          setSubBreedList(data?.message);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }, [breedState]);
+
+  useEffect(() => {
+    fetchData();
+  }, [breedState, fetchData]);
+
+  if (isLoading) return <Loader />;
+  if (!breedList) return <p>No Dogs Found</p>;
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container>
+      <AppBody>
+        <DogForm
+          breedList={breedList}
+          subBreedList={subBreedList}
+          setImages={setImages}
+          setIsLoading={setIsLoading}
+        />
+
+        {imageResultState > 0 && <Results images={images} />}
+      </AppBody>
+      <Description>
+        <ul>
+          This is a Dog App made for fun! Built with React JS Using the Dog API. Tech stack:
+          <li>ReactJS & TypeScript & Redux </li>
+          <li>Axios for fetching Data</li>
+          <li>Styled Components for styles</li>
+          <li>Tests With Jest & React Testing Library</li>
+        </ul>
+        <br />
+      </Description>
+    </Container>
   );
 }
 
