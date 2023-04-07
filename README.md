@@ -6,6 +6,8 @@ Table of Contents:
 
 Getting Started
 Project description
+
+
 🚀 Getting Started
 
 In order to run the App on your machine:
