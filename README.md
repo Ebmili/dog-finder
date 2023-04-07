@@ -2,11 +2,6 @@ Dog - FInder App
 
 TECH STACK: React, Typescript and  Styled-Components
 
-Table of Contents:
-
-Getting Started
-Project description
-
 
 🚀 Getting Started
 
